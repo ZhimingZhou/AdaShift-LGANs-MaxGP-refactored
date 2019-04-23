@@ -1,4 +1,4 @@
-# AdaShift-Lipschitz-GANs-MaxGP
+# AdaShift, Lipschitz-GANs, MaxGP
 
 This repo includes the implementation of AdaShift and also the demonstration code that uses AdaShift to training GANs which achieves FID: 15.8800±0.4921 and Inception Score: 8.0367±0.0499 for unsupervised image generation of GANs in CIFAR-10.
 
