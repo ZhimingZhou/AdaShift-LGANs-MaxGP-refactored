@@ -8,10 +8,14 @@ The provided implementation of AdaShift (common/optimizer/AdaShift) is further d
 
 That is, v_t can be any random variable that keeps the scale of the gradients and is independent of g_t. 
 
+We use tensorflow 1.5 with python 3.5. You can refer to setting_cuda9_cudnn7_tensorflow1.5.sh to build up your environment. 
+
+Try the code via running: python3 realdata_resnet.py. 
+
+synthetic_real.py and synthetic_toy.py are the code we used for the synthetic experiments in [2] and [3].
+
 [1] AdaShift: Decorrelation and Convergence of Adaptive Learning Rate Methods https://arxiv.org/abs/1810.00143
 
 [2] Lipschitz Generative Adversarial Nets https://arxiv.org/abs/1902.05687
 
 [3] Towards Efficient and Unbiased Implementation of Lipschitz Continuity in GANs https://arxiv.org/abs/1904.01184
-
-We use tensorflow 1.5 with python 3.5. You can refer to setting_cuda9_cudnn7_tensorflow1.5.sh to build up your environment. Try the code via running: python3 realdata_resnet.py. synthetic_real.py and synthetic_toy.py are the code we used for the synthetic experiments in [2] and [3].
