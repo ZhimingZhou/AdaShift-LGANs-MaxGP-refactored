@@ -8,7 +8,7 @@ The provided implementation of AdaShift (common/optimizer/AdaShift) is further d
 
 That is, v_t can be any random variable that keeps the scale of the gradients and is independent of g_t.
 
-We also provide a more efficient and elegant implementation of AdaShift in (AdaShift-new.py)
+We also provide a more efficient and elegant implementation of AdaShift, see AdaShift-new.py.
 
 We use tensorflow 1.5 with python 3.5. You can refer to setting_cuda9_cudnn7_tensorflow1.5.sh to build up your environment. 
 
