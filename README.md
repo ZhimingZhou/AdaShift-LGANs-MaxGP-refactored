@@ -10,7 +10,9 @@ That is, v_t can be any random variable that keeps the scale of the gradients an
 
 We also provide a more efficient and elegant implementation of AdaShift, see AdaShift-new.py.
 
-We use tensorflow 1.5 with python 3.5. You can refer to setting_cuda9_cudnn7_tensorflow1.5.sh to build up your environment. 
+We use tensorflow 1.5 with python 3.5. 
+
+You can refer to setting_cuda9_cudnn7_tensorflow1.5.sh to build up your environment. 
 
 Try the code via running: python3 realdata_resnet.py. 
 
