@@ -18,8 +18,8 @@ Try the code via running: python3 realdata_resnet.py.
 
 synthetic_real.py and synthetic_toy.py are the code we used for the synthetic experiments in [2] and [3].
 
-[1] AdaShift: Decorrelation and Convergence of Adaptive Learning Rate Methods https://arxiv.org/abs/1810.00143
+[1] [AdaShift: Decorrelation and Convergence of Adaptive Learning Rate Methods](https://arxiv.org/abs/1810.00143)
 
-[2] Lipschitz Generative Adversarial Nets https://arxiv.org/abs/1902.05687
+[2] [Lipschitz Generative Adversarial Nets](https://arxiv.org/abs/1902.05687)
 
-[3] Towards Efficient and Unbiased Implementation of Lipschitz Continuity in GANs https://arxiv.org/abs/1904.01184
+[3] [Towards Efficient and Unbiased Implementation of Lipschitz Continuity in GANs](https://arxiv.org/abs/1904.01184)
