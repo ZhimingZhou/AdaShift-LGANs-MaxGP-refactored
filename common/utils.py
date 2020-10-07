@@ -2,10 +2,13 @@ import os
 import time
 import psutil
 from shutil import *
-import random, math
+import random
 import scipy.misc
 import numpy as np
 import tensorflow as tf
+import common.GPUtil as GPUtil
+from functools import reduce
+import operator
 
 def gen_n_samples(gen, n):
     data = gen.__next__()
@@ -36,7 +39,6 @@ def clear_duplicated_layers(layers):
 def allocate_gpu(gpu_id=-1, maxLoad=0.1, maxMem=0.5, order='memory'):
     if gpu_id == -1:
         try:
-            import common.GPUtil as GPUtil
             gpu_id = GPUtil.getFirstAvailable(order=order, maxLoad=maxLoad, maxMemory=maxMem)
         except:
             gpu_id = 0
@@ -70,10 +72,6 @@ def load_model(saver, sess, checkpoint_dir):
         return True
     else:
         return False
-
-from functools import reduce
-import operator
-
 
 def prod(iterable):
     return reduce(operator.mul, iterable, 1)

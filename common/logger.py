@@ -1,8 +1,12 @@
 import numpy as np
-import matplotlib, os
+import os
 
+import matplotlib
 matplotlib.use('Agg')
+# font = {'weight': 'normal', 'size': 14}
+# matplotlib.rc('font', **font)
 import matplotlib.pyplot as plt
+
 from shutil import *
 
 import time
@@ -60,15 +64,6 @@ class Logger:
 
     def plot_together(self, names, legends, colors, save_name, sign=None):
 
-        import matplotlib
-
-        matplotlib.use('Agg')
-        title_font = {'size': 14, 'weight': 'bold'}
-        axis_font = {'size': 14, 'weight': 'bold'}
-        font = {'weight': 'normal', 'size': 14}
-        matplotlib.rc('font', **font)
-        import matplotlib.pyplot as plt
-
         def smooth(y, winsize):
             if winsize % 2 == 0:
                 winsize -= 1
@@ -97,7 +92,10 @@ class Logger:
 
         plt.savefig(self.save_folder + save_name)
 
-    def plot(self, bSmooth=False, bLogScale=False, r=0.99):
+    def plot(self, bSmooth=True, bLogScale=False, r=0.99):
+
+        if r > 1. or r < 0:
+            r = 0.995
 
         for name in np.sort(list(self.since_beginning.keys())):
 
@@ -122,7 +120,8 @@ class Logger:
                 plt.clf()
                 plt.plot(x_vals, y_vals)
                 plt.plot(x_vals, y_vals_s)
-                plt.ylim(np.min(y_vals[-int(len(y_vals) * r + 0.5):]) - 1e-5, np.max(y_vals[-int(len(y_vals) * r + 0.5):]))
+                plt.gca().ticklabel_format(axis='both', style='plain', useOffset=False)
+                plt.ylim(0 if 0 < np.min(y_vals_s[-int(len(y_vals_s) * r - 1):]) < 1e-3 else np.min(y_vals_s[-int(len(y_vals_s) * r - 1):]), np.min(y_vals_s[:-int(len(y_vals_s) * r - 1)]))
                 plt.xlabel('iteration')
                 plt.ylabel(name)
                 plt.tight_layout()
@@ -130,7 +129,8 @@ class Logger:
 
             plt.clf()
             plt.plot(x_vals, y_vals_s)
-            plt.ylim(np.min(y_vals_s[-int(len(y_vals_s) * r + 0.5):]) - 1e-5, np.max(y_vals_s[-int(len(y_vals_s) * r + 0.5):]))
+            plt.gca().ticklabel_format(axis='both', style='plain', useOffset=False)
+            plt.ylim(0 if 0 < np.min(y_vals_s[-int(len(y_vals_s) * r - 1):]) < 1e-3 else np.min(y_vals_s[-int(len(y_vals_s) * r - 1):]), np.min(y_vals_s[:-int(len(y_vals_s) * r - 1)]))
             plt.xlabel('iteration')
             plt.ylabel(name)
             plt.tight_layout()
@@ -150,8 +150,8 @@ class Logger:
             if self.since_last_flush.get(name) is not None:
                 vals = self.since_last_flush.get(name)
                 self.since_beginning[name].update(vals)
-                if abs(np.std(list(vals.values()))) < 1e-5:
-                    if abs(np.mean(list(vals.values()))) < 1e-5:
+                if abs(np.std(list(vals.values()))) < 1e-20:
+                    if abs(np.mean(list(vals.values()))) < 1e-20:
                         pass
                     else:
                         prints.append("{}:{:.4f}".format(name, np.mean(list(vals.values()))))

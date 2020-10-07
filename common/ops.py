@@ -69,7 +69,6 @@ def identity(inputs):
 def deconv2d(input, output_dim, ksize=3, stride=1, padding='SAME', name='deconv2d',
              enable_bias=None, enable_wn=None, enable_sn=None, data_format=None,
              initializer=None, init_weight_stddev=None, init_distribution_type=None, gain=None):
-
     enable_wn = __enable_wn__ if enable_wn is None else enable_wn
     enable_sn = __enable_sn__ if enable_sn is None else enable_sn
     enable_bias = __enable_bias__ if enable_bias is None else enable_bias
@@ -97,20 +96,25 @@ def deconv2d(input, output_dim, ksize=3, stride=1, padding='SAME', name='deconv2
     with tf.variable_scope(name, reuse=tf.AUTO_REUSE):
 
         if enable_wn:
-            w = tf.get_variable('w', [ksize, ksize, output_dim, input_shape[c_axis]], initializer=simple_stddev_initializer(init_distribution_type, init_weight_stddev))
-            g = tf.get_variable('g', initializer=tf.ones_like(tf.reduce_sum(w, [0, 1, 3], keepdims=True)) * stride * gain)
+            w = tf.get_variable('w', [ksize, ksize, output_dim, input_shape[c_axis]],
+                                initializer=simple_stddev_initializer(init_distribution_type, init_weight_stddev))
+            g = tf.get_variable('g',
+                                initializer=tf.ones_like(tf.reduce_sum(w, [0, 1, 3], keepdims=True)) * stride * gain)
             w = g * tf.nn.l2_normalize(w, [0, 1, 3])
         else:
             if initializer is None:
                 scale = gain / np.sqrt(float(ksize * ksize * input_shape[c_axis])) / init_weight_stddev * stride
-                w = scale * tf.get_variable('w', [ksize, ksize, output_dim, input_shape[c_axis]], initializer=simple_stddev_initializer(init_distribution_type, init_weight_stddev))
+                w = scale * tf.get_variable('w', [ksize, ksize, output_dim, input_shape[c_axis]],
+                                            initializer=simple_stddev_initializer(init_distribution_type,
+                                                                                  init_weight_stddev))
             else:
                 w = tf.get_variable('w', [ksize, ksize, output_dim, input_shape[c_axis]], initializer=initializer)
 
         if enable_sn:
             w = spectral_normed_weight(w)[0]
 
-        x = tf.nn.conv2d_transpose(input, w, output_shape=output_shape, strides=strides, padding=padding, data_format=data_format)
+        x = tf.nn.conv2d_transpose(input, w, output_shape=output_shape, strides=strides, padding=padding,
+                                   data_format=data_format)
 
         if enable_bias:
             b = tf.get_variable('b', initializer=tf.constant_initializer(0.0), shape=[output_dim])
@@ -122,7 +126,6 @@ def deconv2d(input, output_dim, ksize=3, stride=1, padding='SAME', name='deconv2
 def conv2d(input, output_dim, ksize=3, stride=1, padding='SAME', name='conv2d',
            enable_bias=None, enable_wn=None, enable_sn=None, data_format=None,
            initializer=None, init_weight_stddev=None, init_distribution_type=None, gain=None):
-
     enable_wn = __enable_wn__ if enable_wn is None else enable_wn
     enable_sn = __enable_sn__ if enable_sn is None else enable_sn
     enable_bias = __enable_bias__ if enable_bias is None else enable_bias
@@ -139,13 +142,16 @@ def conv2d(input, output_dim, ksize=3, stride=1, padding='SAME', name='conv2d',
         strides = [1, stride, stride, 1] if data_format == "NHWC" else [1, 1, stride, stride]
 
         if enable_wn:
-            w = tf.get_variable('w', [ksize, ksize, input_shape[c_axis], output_dim], initializer=simple_stddev_initializer(init_distribution_type, init_weight_stddev))
+            w = tf.get_variable('w', [ksize, ksize, input_shape[c_axis], output_dim],
+                                initializer=simple_stddev_initializer(init_distribution_type, init_weight_stddev))
             g = tf.get_variable('g', initializer=tf.ones_like(tf.reduce_sum(w, [0, 1, 2], keepdims=True)) * gain)
             w = g * tf.nn.l2_normalize(w, [0, 1, 2])
         else:
             if initializer is None:
                 scale = gain / np.sqrt(float(ksize * ksize * input_shape[c_axis])) / init_weight_stddev
-                w = tf.get_variable('w', [ksize, ksize, input_shape[c_axis], output_dim], initializer=simple_stddev_initializer(init_distribution_type, init_weight_stddev)) * scale
+                w = tf.get_variable('w', [ksize, ksize, input_shape[c_axis], output_dim],
+                                    initializer=simple_stddev_initializer(init_distribution_type,
+                                                                          init_weight_stddev)) * scale
             else:
                 w = tf.get_variable('w', [ksize, ksize, input_shape[c_axis], output_dim], initializer=initializer)
 
@@ -164,7 +170,6 @@ def conv2d(input, output_dim, ksize=3, stride=1, padding='SAME', name='conv2d',
 def linear(input, output_dim, name='linear',
            enable_bias=None, enable_wn=None, enable_sn=None,
            initializer=None, init_weight_stddev=None, init_distribution_type=None, gain=None):
-
     enable_wn = __enable_wn__ if enable_wn is None else enable_wn
     enable_sn = __enable_sn__ if enable_sn is None else enable_sn
     enable_bias = __enable_bias__ if enable_bias is None else enable_bias
@@ -179,13 +184,16 @@ def linear(input, output_dim, name='linear',
         assert len(input_shape) == 2
 
         if enable_wn:
-            w = tf.get_variable('w', [input_shape[1], output_dim], initializer=simple_stddev_initializer(init_distribution_type, init_weight_stddev))
+            w = tf.get_variable('w', [input_shape[1], output_dim],
+                                initializer=simple_stddev_initializer(init_distribution_type, init_weight_stddev))
             g = tf.get_variable('g', initializer=tf.ones_like(tf.reduce_sum(tf.square(w), [0], keepdims=True)) * gain)
             w = g * tf.nn.l2_normalize(w, [0])
         else:
             if initializer is None:
                 scale = gain / np.sqrt(float(input_shape[1])) / init_weight_stddev
-                w = tf.get_variable('w', [input_shape[1], output_dim], initializer=simple_stddev_initializer(init_distribution_type, init_weight_stddev)) * scale
+                w = tf.get_variable('w', [input_shape[1], output_dim],
+                                    initializer=simple_stddev_initializer(init_distribution_type,
+                                                                          init_weight_stddev)) * scale
             else:
                 w = tf.get_variable('w', [input_shape[1], output_dim], initializer=initializer)
 
@@ -201,8 +209,8 @@ def linear(input, output_dim, name='linear',
     return x
 
 
-def generalized_normalization(input, reduce_axis, parm_axis, enable_offset=True, enable_scale=True, epsilon=0.001, name='norm'):
-
+def generalized_normalization(input, reduce_axis, parm_axis, enable_offset=True, enable_scale=True, epsilon=0.001,
+                              name='norm'):
     with tf.variable_scope(name, reuse=tf.AUTO_REUSE):
 
         input_shape = input.get_shape().as_list()
@@ -223,8 +231,8 @@ def generalized_normalization(input, reduce_axis, parm_axis, enable_offset=True,
     return outputs
 
 
-def conditional_generalized_normalization(input, reduce_axis, parm_axis, labels, n_labels, enable_offset=True, enable_scale=True, epsilon=0.001, name='cond_bn'):
-
+def conditional_generalized_normalization(input, reduce_axis, parm_axis, labels, n_labels, enable_offset=True,
+                                          enable_scale=True, epsilon=0.001, name='cond_bn'):
     with tf.variable_scope(name, reuse=tf.AUTO_REUSE):
 
         input_shape = input.get_shape().as_list()
@@ -247,15 +255,14 @@ def conditional_generalized_normalization(input, reduce_axis, parm_axis, labels,
 
 
 def avgpool(input, ksize, stride, name='avgpool', scale_up=False, data_format=None):
-
     data_format = __data_format__ if data_format is None else data_format
 
     with tf.variable_scope(name, reuse=tf.AUTO_REUSE):
-
         kernel = [1, ksize, ksize, 1] if data_format == "NHWC" else [1, 1, ksize, ksize]
         strides = [1, stride, stride, 1] if data_format == "NHWC" else [1, 1, stride, stride]
 
-        input = tf.nn.avg_pool(input, ksize=kernel, strides=strides, padding='VALID', name=name, data_format=data_format)
+        input = tf.nn.avg_pool(input, ksize=kernel, strides=strides, padding='VALID', name=name,
+                               data_format=data_format)
 
         if scale_up:
             input *= ksize
@@ -264,25 +271,22 @@ def avgpool(input, ksize, stride, name='avgpool', scale_up=False, data_format=No
 
 
 def maxpool(input, ksize, stride, name='maxpool', data_format=None):
-
     data_format = __data_format__ if data_format is None else data_format
 
     with tf.variable_scope(name, reuse=tf.AUTO_REUSE):
-
         kernel = [1, ksize, ksize, 1] if data_format == "NHWC" else [1, 1, ksize, ksize]
         strides = [1, stride, stride, 1] if data_format == "NHWC" else [1, 1, stride, stride]
 
-        input = tf.nn.max_pool(input, ksize=kernel, strides=strides, padding='VALID', name=name, data_format=data_format)
+        input = tf.nn.max_pool(input, ksize=kernel, strides=strides, padding='VALID', name=name,
+                               data_format=data_format)
 
     return input
 
 
 def image_nn_double_size(input, name='resize', data_format=None):
-
     data_format = __data_format__ if data_format is None else data_format
 
     with tf.variable_scope(name, reuse=tf.AUTO_REUSE):
-
         h_axis, w_axis, c_axis = [1, 2, 3] if data_format == "NHWC" else [2, 3, 1]
         input = tf.concat([input, input, input, input], axis=c_axis)
         input = tf.depth_to_space(input, 2, data_format=data_format)
@@ -291,7 +295,6 @@ def image_nn_double_size(input, name='resize', data_format=None):
 
 
 def noise(input, stddev, by_add=False, by_multi=True, keep_prob=None, name='noise'):
-
     with tf.variable_scope(name, reuse=tf.AUTO_REUSE):
 
         if by_add:
@@ -306,7 +309,6 @@ def noise(input, stddev, by_add=False, by_multi=True, keep_prob=None, name='nois
 
 
 def lnoise(input, noise_std, drop_prob):
-
     if noise_std > 0:
         input = noise(input=input, stddev=noise_std, by_multi=True, by_add=False)
 
@@ -317,9 +319,7 @@ def lnoise(input, noise_std, drop_prob):
 
 
 def dropout(input, drop_prob, name='dropout'):
-
     with tf.variable_scope(name, reuse=tf.AUTO_REUSE):
-
         keep_prob = 1.0 - drop_prob
 
         if keep_prob < 1.0:
@@ -334,7 +334,6 @@ def dropout(input, drop_prob, name='dropout'):
 
 
 def normalized_orthogonal_initializer(flatten_axis, stddev=1.0):
-
     def _initializer(shape, dtype=None, partition_info=None):
 
         if len(shape) < 2:
@@ -361,7 +360,6 @@ def normalized_orthogonal_initializer(flatten_axis, stddev=1.0):
 
 
 def simple_stddev_initializer(type, stddev):
-
     if type == 'normal':
         return tf.random_normal_initializer(stddev=stddev)
 
@@ -373,7 +371,6 @@ def simple_stddev_initializer(type, stddev):
 
 
 def simple_stddev_random_value(shape, type, stddev):
-
     if type == 'normal':
         return tf.random_normal(shape, stddev=stddev)
 
@@ -385,15 +382,16 @@ def simple_stddev_random_value(shape, type, stddev):
 
 
 def spectral_normed_weight(W, num_iters=3, bUseCollection=True):
-
     def _l2normalize(v, eps=1e-12):
         return v / (tf.reduce_sum(v ** 2) ** 0.5 + eps)
 
     W_shape = W.shape.as_list()
     W_reshaped = tf.reshape(W, [-1, W_shape[-1]])
 
-    u = tf.get_variable('u', [1, W_reshaped.shape.as_list()[1]], initializer=tf.truncated_normal_initializer(), trainable=False)
-    v = tf.get_variable('v', [1, W_reshaped.shape.as_list()[0]], initializer=tf.truncated_normal_initializer(), trainable=False)
+    u = tf.get_variable('u', [1, W_reshaped.shape.as_list()[1]], initializer=tf.truncated_normal_initializer(),
+                        trainable=False)
+    v = tf.get_variable('v', [1, W_reshaped.shape.as_list()[0]], initializer=tf.truncated_normal_initializer(),
+                        trainable=False)
 
     def power_iteration(i, u_i, v_i):
         v_ip1 = _l2normalize(tf.matmul(u_i, tf.transpose(W_reshaped)))
@@ -434,9 +432,7 @@ def spectral_normed_weight(W, num_iters=3, bUseCollection=True):
 
 
 def minibatch_feature(input, n_kernels=100, dim_per_kernel=5, name='minibatch'):
-
     with tf.variable_scope(name, reuse=tf.AUTO_REUSE):
-
         input_shape = input.get_shape().as_list()
 
         if len(input.get_shape()) > 2:
@@ -461,7 +457,6 @@ def minibatch_feature(input, n_kernels=100, dim_per_kernel=5, name='minibatch'):
 
 
 def channel_concat(x, y):
-
     x_shapes = x.get_shape().as_list()
     y_shapes = y.get_shape().as_list()
     assert y_shapes[0] == x_shapes[0]
@@ -471,7 +466,6 @@ def channel_concat(x, y):
 
 
 def pwxb(input):
-
     input_shape = input.get_shape()
 
     if len(input_shape) == 4:
@@ -494,11 +488,8 @@ def pwxb(input):
 
     return input
 
-
-def scaled_activation(input, act, scale):
-
+def scaled_activation(input, act, scale=1.0):
     xx = act(tf.random_normal([1000000]))
-    mean, std = tf.Session().run(tf.nn.moments(xx, 0))
-    input = (input - mean) / std * scale
-
+    mean, std = tf.Session.run(tf.nn.moments(xx, 0))
+    input = (act(input) - mean) / std * scale
     return input
